@@ -102,6 +102,9 @@ button:active,
 button:focus  {
     outline: none!important;
 }
+#app {
+    height: 100vh;
+}
 .container {
     padding-top: 90px;
 }
