@@ -24,14 +24,15 @@ class Router {
     }
   }
   follow(path) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', `${path}`);
-    xhr.onloadend = () => {
-      this.root.innerHTML = xhr.responseText;
-    }
-    xhr.onerror = function() {
-      console.log(xhr.status);
-    }
-    xhr.send();
+      const xhr = new XMLHttpRequest();
+
+      xhr.open('GET', `${path}`);
+      xhr.onloadend = () => {
+          this.root.innerHTML = xhr.responseText;
+      };
+      xhr.onerror = function() {
+          console.log(xhr.status);
+      };
+      xhr.send();
   }
 }

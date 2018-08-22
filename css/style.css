@@ -57,6 +57,7 @@ body {
     background: url('../img/main-bg.jpg') no-repeat center center;
     background-size: cover;
     position: relative;
+    z-index: -1;
 }
 h1, h2, h3, h4, h5, h6, p {
     margin: 0;
@@ -121,6 +122,8 @@ button:focus  {
 	height: 100vh;
 	padding-left: 15px;
 	padding-right: 15px;
+    max-width: 1100px;
+    margin: auto;
 }
 .auth-container {
     max-width: 770px;
@@ -151,6 +154,9 @@ button:focus  {
     color: #fff;
 }
 .auth-body {
+    position: relative;
+    z-index: 9999;
+    background-color: #fff;
     padding: 35px 40px;
 }
 .form-group label {
@@ -223,5 +229,8 @@ button:focus  {
     position: fixed;
     bottom: 5px;
     right: 15px;
+}
+.home-header {
+    display: none;
 }
 
