@@ -120,12 +120,14 @@ class SignInFormHandler {
 class HomePageHandler {
     constructor(home) {
         this.home = home;
-        this.showTaskList = this.showTaskList.bind(this)
+        this.controls = this.home.children;
+        this.showTaskList = this.showTaskList.bind(this);
     }
 
     getTaskList() {
         const xhr = new XMLHttpRequest();
         const body = JSON.stringify({user_id: sessionStorage.getItem('userId')});
+
         xhr.open('POST', `${BASE_URI}/task/all`);
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         xhr.withCredentials = true;
@@ -133,9 +135,6 @@ class HomePageHandler {
         	const tasks = JSON.parse(xhr.responseText);
         	this.showTaskList(tasks);
 		};
-        xhr.onreadystatechange = function () {
-            console.log(xhr.response);
-        };
         xhr.send(body);
     }
 
@@ -151,12 +150,50 @@ class HomePageHandler {
         		</div>
         		<div class="card-footer">
                		<div class="d-flex justify-content-around">
-                   		<a href="#new_task" data-id="edit" class="header-control-btn">Edit</a>
-                   		<a href="" data-id="delete" class="header-control-btn active">Delete</a>
+                   		<a data-id=${task.id} data-target="edit" class="header-control-btn">Edit</a>
+                   		<a data-id=${task.id} data-target="delete" class="header-control-btn">Delete</a>
                		</div>
             	</div>
     		</div>`
     	}).join('');
+		this.init();
+	}
+
+	deleteTask(e) {
+		if (e.target.dataset.target === 'delete') {
+			console.log('delete')
+			const id = e.target.dataset.id;
+			const xhr = new XMLHttpRequest();
+
+			xhr.open('GET', `${BASE_URI}/task/one/${id}`);
+			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+			xhr.withCredentials = true;
+			xhr.onloadend = function () {
+				xhr.responseText;
+			};
+			xhr.onerror = function () {
+				console.log(xhr.status);
+			};
+			xhr.send();
+		}
+	}
+
+	editTask(e) {
+    	if (e.target.dataset.target === 'edit') {
+    		const id = e.target.dataset.id;
+    		const xhr = new XMLHttpRequest();
+
+    		xhr.open('GET', `${BASE_URI}/task/one/${id}`);
+			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+			xhr.withCredentials = true;
+			xhr.onloadend = function () {
+				location.hash = '#new_task';
+			};
+			xhr.onerror = function () {
+				console.log(xhr.status);
+			};
+			xhr.send();
+		}
 	}
 
     logout() {
@@ -172,7 +209,9 @@ class HomePageHandler {
     }
 
     init() {
-        document.querySelector('.logout').addEventListener('click', this.logOut)
+        document.querySelector('.logout').addEventListener('click', this.logout);
+        Array.from(this.controls).forEach( el => el.addEventListener('click', this.deleteTask.bind(this)));
+        Array.from(this.controls).forEach( el => el.addEventListener('click', this.editTask.bind(this)));
     }
 }
 
@@ -185,12 +224,12 @@ class NewTaskFormHandler {
     onsubmit(e) {
 		e.preventDefault();
 		let date = this.form[2].value;
-		date = new Date();
+		const taskDate = new Date(date);
 		const task = {
 			user_id: sessionStorage.getItem('userId'),
             header: this.form[0].value,
             details: this.form[1].value,
-            date: JSON.stringify(date),
+            date: JSON.stringify(taskDate),
 		};
 		const xhr = new XMLHttpRequest();
 		const body = JSON.stringify(task);
@@ -198,6 +237,7 @@ class NewTaskFormHandler {
 		xhr.open('POST', `${BASE_URI}/task/add`);
 		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 		xhr.withCredentials = true;
+		xhr.onloadend = () => location.hash = '#home';
 		xhr.onreadystatechange = function() {
 			location.hash = '#home'
 		};
@@ -206,7 +246,9 @@ class NewTaskFormHandler {
 }
 
 window.addEventListener('hashchange', function(){
-    window.location.reload(false);
+	if (location.hash === '#login' || location.hash === '#sign_in' || location.hash === '#home') {
+		window.location.reload(false);
+	}
 });
 
 window.addEventListener('load', function () {

@@ -142,7 +142,11 @@ button:focus  {
     border-radius: 2px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, .06);
     text-transform: uppercase;
+    cursor: pointer;
     transition: all .2s ease-in;
+}
+.card-footer a.header-control-btn {
+    color: #999;
 }
 .header-control-btn + .header-control-btn {
     margin-left: 25px;
