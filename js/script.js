@@ -187,6 +187,8 @@ class HomePageHandler {
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 			xhr.withCredentials = true;
 			xhr.onloadend = function () {
+			    const task = JSON.parse(xhr.responseText);
+			    sessionStorage.setItem('edit', JSON.stringify(task));
 				location.hash = '#new_task';
 			};
 			xhr.onerror = function () {
@@ -219,12 +221,31 @@ class NewTaskFormHandler {
 	constructor(form) {
 		this.form = form;
 		this.form.addEventListener('submit', this.onsubmit.bind(this));
+		this.editTask();
+    }
+
+    editTask() {
+	    const task = JSON.parse(sessionStorage.getItem('edit'));
+	    if (task) {
+	        // console.log(task.date)
+            let date = task.date;
+            const dateToInput = date =>
+              `${date.getFullYear()
+              }-${('0' + (date.getMonth() + 1)).slice(-2)
+              }-${('0' + date.getDate()).slice(-2)
+              }`;
+            const inputToDate = str => new Date(str.split('-'));
+	        this.form.header.value = task.header;
+	        this.form.details.value = task.details;
+	        this.form.date.value = inputToDate;
+        }
+	    // return flag ? JSON.parse(flag) : [];
     }
 
     onsubmit(e) {
 		e.preventDefault();
-		let date = this.form[2].value;
-		const taskDate = new Date(date);
+		const inputDate = this.form[2].value;
+		const taskDate = new Date(inputDate);
 		const task = {
 			user_id: sessionStorage.getItem('userId'),
             header: this.form[0].value,
@@ -237,7 +258,6 @@ class NewTaskFormHandler {
 		xhr.open('POST', `${BASE_URI}/task/add`);
 		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 		xhr.withCredentials = true;
-		xhr.onloadend = () => location.hash = '#home';
 		xhr.onreadystatechange = function() {
 			location.hash = '#home'
 		};
@@ -246,9 +266,7 @@ class NewTaskFormHandler {
 }
 
 window.addEventListener('hashchange', function(){
-	if (location.hash === '#login' || location.hash === '#sign_in' || location.hash === '#home') {
-		window.location.reload(false);
-	}
+    window.location.reload(false);
 });
 
 window.addEventListener('load', function () {
