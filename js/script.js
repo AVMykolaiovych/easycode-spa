@@ -1,6 +1,5 @@
 const BASE_URI = 'http://localhost:8000';
 
-
 class LoginFormHandler {
 	constructor(form) {
 		this.form = form;
@@ -121,6 +120,7 @@ class HomePageHandler {
     constructor(home) {
         this.home = home;
         this.controls = this.home.children;
+        this.getTaskList = this.getTaskList.bind(this);
         this.showTaskList = this.showTaskList.bind(this);
     }
 
@@ -161,7 +161,6 @@ class HomePageHandler {
 
 	deleteTask(e) {
 		if (e.target.dataset.target === 'delete') {
-			console.log('delete')
 			const id = e.target.dataset.id;
 			const xhr = new XMLHttpRequest();
 
@@ -169,7 +168,7 @@ class HomePageHandler {
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 			xhr.withCredentials = true;
 			xhr.onloadend = function () {
-				xhr.responseText;
+				location.hash = '#home'
 			};
 			xhr.onerror = function () {
 				console.log(xhr.status);
@@ -225,43 +224,46 @@ class NewTaskFormHandler {
     }
 
     editTask() {
-	    const task = JSON.parse(sessionStorage.getItem('edit'));
-	    if (task) {
-	        // console.log(task.date)
-            let date = task.date;
-            const dateToInput = date =>
-              `${date.getFullYear()
-              }-${('0' + (date.getMonth() + 1)).slice(-2)
-              }-${('0' + date.getDate()).slice(-2)
-              }`;
-            const inputToDate = str => new Date(str.split('-'));
-	        this.form.header.value = task.header;
-	        this.form.details.value = task.details;
-	        this.form.date.value = inputToDate;
+	    const editingTask = JSON.parse(sessionStorage.getItem('edit'));
+	    if (editingTask) {
+	    	let date = editingTask.date
+	    	date = date.substring(1, 11)
+	        this.form.header.value = editingTask.header;
+	        this.form.details.value = editingTask.details;
+	        this.form.deadline.value = date;
         }
-	    // return flag ? JSON.parse(flag) : [];
     }
 
     onsubmit(e) {
 		e.preventDefault();
-		const inputDate = this.form[2].value;
-		const taskDate = new Date(inputDate);
-		const task = {
-			user_id: sessionStorage.getItem('userId'),
+		const editingTask = JSON.parse(sessionStorage.getItem('edit'));
+        const inputDate = this.form[2].value;
+        const taskDate = new Date(inputDate);
+        const task = {
+            user_id: sessionStorage.getItem('userId'),
             header: this.form[0].value,
-            details: this.form[1].value,
+            details: this.form[1].value.substring(0, 16),
             date: JSON.stringify(taskDate),
-		};
-		const xhr = new XMLHttpRequest();
-		const body = JSON.stringify(task);
-
-		xhr.open('POST', `${BASE_URI}/task/add`);
-		xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-		xhr.withCredentials = true;
-		xhr.onreadystatechange = function() {
-			location.hash = '#home'
-		};
-		xhr.send(body);
+        };
+        const xhr = new XMLHttpRequest();
+        const body = JSON.stringify(task);
+		if (editingTask) {
+			xhr.open('PUT', `${BASE_URI}/task/${editingTask.id}`);
+			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+			xhr.withCredentials = true;
+			xhr.onreadystatechange = function() {
+				location.hash = '#home'
+			};
+			xhr.send(body);
+		} else {
+			xhr.open('POST', `${BASE_URI}/task/add`);
+			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+			xhr.withCredentials = true;
+			xhr.onreadystatechange = function() {
+				location.hash = '#home'
+			};
+			xhr.send(body);
+		}
 	}
 }
 
@@ -282,12 +284,16 @@ window.addEventListener('load', function () {
     		document.querySelector('nav.index-header').style.display = 'none';
     		const taskList = new HomePageHandler(document.querySelector('.card-columns'));
     		taskList.getTaskList();
+    		sessionStorage.removeItem('edit');
     		break;
 		case '#new_task':
 			document.querySelector('nav.home-header').style.display = 'block';
     		document.querySelector('nav.index-header').style.display = 'none';
     		document.querySelector('nav.home-header .add').style.display = 'none';
     		const newTask = new NewTaskFormHandler(document.forms['newTask']);
+    		break;
+    	case '':
+			sessionStorage.removeItem('userId');
     		break;
 	}
 });
