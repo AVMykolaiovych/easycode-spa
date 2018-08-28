@@ -28,7 +28,35 @@ class Router {
 
       xhr.open('GET', `${path}`);
       xhr.onloadend = () => {
-          this.root.innerHTML = xhr.responseText;
+          switch (location.hash) {
+              case '#login':
+                  this.root.innerHTML = xhr.responseText;
+                  const login = new LoginFormHandler(document.forms['login']);
+                  break;
+              case '#sign_in':
+                  this.root.innerHTML = xhr.responseText;
+                  const signIn = new SignInFormHandler(document.forms['signIn']);
+                  break;
+              case '#home':
+                  this.root.innerHTML = xhr.responseText;
+                  document.querySelector('nav.home-header').style.display = 'block';
+                  document.querySelector('nav.index-header').style.display = 'none';
+                  const taskList = new HomePageHandler(document.querySelector('.card-columns'));
+                  taskList.getTaskList();
+                  sessionStorage.removeItem('edit');
+                  break;
+              case '#new_task':
+                  this.root.innerHTML = xhr.responseText;
+                  document.querySelector('nav.home-header').style.display = 'block';
+                  document.querySelector('nav.index-header').style.display = 'none';
+                  document.querySelector('nav.home-header .add').style.display = 'none';
+                  const newTask = new NewTaskFormHandler(document.forms['newTask']);
+                  break;
+              case '':
+                  this.root.innerHTML = xhr.responseText;
+                  sessionStorage.removeItem('userId');
+                  break;
+          }
       };
       xhr.onerror = function() {
           console.log(xhr.status);

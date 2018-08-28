@@ -43,8 +43,8 @@ class LoginFormHandler {
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
             xhr.withCredentials = true;
             xhr.onloadend = () => {
-            	sessionStorage.setItem('userId', xhr.responseText);
-			};
+                sessionStorage.setItem('userId', xhr.responseText);
+            };
             xhr.onreadystatechange = function() {
 				location.hash = '#home';
 			};
@@ -102,15 +102,9 @@ class SignInFormHandler {
             xhr.open('POST', `${BASE_URI}/user/register`);
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
             xhr.withCredentials = true;
-            xhr.onloadend = function() {
-            	console.log(xhr.status);
-			};
             xhr.onreadystatechange = function() {
 				location.hash = '#login'
 			};
-            xhr.onerror = function () {
-                console.log(xhr.status);
-            };
             xhr.send(body);
         }
 	}
@@ -170,9 +164,6 @@ class HomePageHandler {
 			xhr.onloadend = function () {
 				location.hash = '#home'
 			};
-			xhr.onerror = function () {
-				console.log(xhr.status);
-			};
 			xhr.send();
 		}
 	}
@@ -189,9 +180,6 @@ class HomePageHandler {
 			    const task = JSON.parse(xhr.responseText);
 			    sessionStorage.setItem('edit', JSON.stringify(task));
 				location.hash = '#new_task';
-			};
-			xhr.onerror = function () {
-				console.log(xhr.status);
 			};
 			xhr.send();
 		}
@@ -252,6 +240,7 @@ class NewTaskFormHandler {
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 			xhr.withCredentials = true;
 			xhr.onreadystatechange = function() {
+				document.querySelector('nav.home-header .add').style.display = 'inline-block';
 				location.hash = '#home'
 			};
 			xhr.send(body);
@@ -260,43 +249,13 @@ class NewTaskFormHandler {
 			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
 			xhr.withCredentials = true;
 			xhr.onreadystatechange = function() {
+				document.querySelector('nav.home-header .add').style.display = 'inline-block';
 				location.hash = '#home'
 			};
 			xhr.send(body);
 		}
 	}
 }
-
-window.addEventListener('hashchange', function(){
-    window.location.reload(false);
-});
-
-window.addEventListener('load', function () {
-	switch(location.hash) {
-		case '#login':
-    		const login = new LoginFormHandler(document.forms['login']);
-    		break;
-		case '#sign_in':
-    		const signIn = new SignInFormHandler(document.forms['signIn']);
-    		break;
-		case '#home':
-			document.querySelector('nav.home-header').style.display = 'block';
-    		document.querySelector('nav.index-header').style.display = 'none';
-    		const taskList = new HomePageHandler(document.querySelector('.card-columns'));
-    		taskList.getTaskList();
-    		sessionStorage.removeItem('edit');
-    		break;
-		case '#new_task':
-			document.querySelector('nav.home-header').style.display = 'block';
-    		document.querySelector('nav.index-header').style.display = 'none';
-    		document.querySelector('nav.home-header .add').style.display = 'none';
-    		const newTask = new NewTaskFormHandler(document.forms['newTask']);
-    		break;
-    	case '':
-			sessionStorage.removeItem('userId');
-    		break;
-	}
-});
 
 
 
