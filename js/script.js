@@ -1,113 +1,111 @@
 const BASE_URI = 'http://localhost:8000';
 
 class LoginFormHandler {
-	constructor(form) {
-		this.form = form;
-		this.controls = this.form.elements;
-		Array.from(this.controls).forEach(el => el.addEventListener('blur', this.validate));
-		this.form.addEventListener('submit', this.onsubmit.bind(this));
-	}
+    constructor(form) {
+        this.form = form;
+        this.controls = this.form.elements;
+        Array.from(this.controls).forEach(el => el.addEventListener('blur', this.validate));
+        this.form.addEventListener('submit', this.onsubmit.bind(this));
+    }
 
-	validate(e) {
-		if(e.target.tagName === 'BUTTON') return true;
-		e.target.classList.remove('border-danger');
+    validate(e) {
+        const regexp = new RegExp(e.target.dataset.reg);
 
-		if(!e.target.value) {
-			e.target.classList.add('border-danger');
-			return false;
-		}
+        if (e.target.tagName === 'BUTTON') return true;
+        e.target.classList.remove('border-danger');
 
-		const regexp = new RegExp(e.target.dataset.reg);
-		if(!regexp.test(e.target.value)) {
-			e.target.classList.add('border-danger');
-			return false;
-		}
+        if (!e.target.value) {
+            e.target.classList.add('border-danger');
+            return false;
+        }
 
-		return true;
-	}
+        if (!regexp.test(e.target.value)) {
+            e.target.classList.add('border-danger');
+            return false;
+        }
+        return true;
+    }
 
-	onsubmit(e) {
-		e.preventDefault();
-		const controls = Array.from(this.controls);
-		controls.forEach(el => this.validate({ target: el }));
-		const valid = controls.every(el => !el.classList.contains('border-danger'));
-		const email = this.form.email.value;
-		const password = this.form.password.value;
-		console.log(email, password)
-		if(valid) {
+    onsubmit(e) {
+        e.preventDefault();
 
+        const controls = Array.from(this.controls);
+        controls.forEach(el => this.validate({target: el}));
+        const valid = controls.every(el => !el.classList.contains('border-danger'));
+        const email = this.form.email.value;
+        const password = this.form.password.value;
+
+        if (valid) {
             const xhr = new XMLHttpRequest();
-            const body = JSON.stringify({ email, password });
+            const body = JSON.stringify({email, password});
 
             xhr.open('POST', `${BASE_URI}/user/login`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
             xhr.withCredentials = true;
-            xhr.onloadend = () => {
-                sessionStorage.setItem('userId', xhr.responseText);
+            xhr.onloadend = () => sessionStorage.setItem('userId', xhr.responseText);
+            xhr.onreadystatechange = function () {
+                location.hash = '#home';
             };
-            xhr.onreadystatechange = function() {
-				location.hash = '#home';
-			};
             xhr.send(body);
         }
-	}
+    }
 }
 
-
 class SignInFormHandler {
-	constructor(form) {
-		this.form = form;
-		this.controls = this.form.elements;
-		Array.from(this.controls).forEach(el => el.addEventListener('blur', this.validate));
-		this.form.addEventListener('submit', this.onsubmit.bind(this));
-	}
+    constructor(form) {
+        this.form = form;
+        this.controls = this.form.elements;
+        Array.from(this.controls).forEach(el => el.addEventListener('blur', this.validate));
+        this.form.addEventListener('submit', this.onsubmit.bind(this));
+    }
 
-	validate(e) {
+    validate(e) {
+        const regexp = new RegExp(e.target.dataset.reg);
         const password = this.form[1];
         const repeatPassword = this.form[2];
-		if(e.target.tagName === 'BUTTON') return true;
-		e.target.classList.remove('border-danger');
 
-		if(!e.target.value) {
-			e.target.classList.add('border-danger');
-			return false;
-		}
+        if (e.target.tagName === 'BUTTON') return true;
+        e.target.classList.remove('border-danger');
 
-		const regexp = new RegExp(e.target.dataset.reg);
-		if(!regexp.test(e.target.value)) {
-			e.target.classList.add('border-danger');
-			return false;
-		}
+        if (!e.target.value) {
+            e.target.classList.add('border-danger');
+            return false;
+        }
 
-		if (password.value !== repeatPassword.value) {
-		    repeatPassword.classList.add('border-danger');
-			return false;
-		}
+        if (!regexp.test(e.target.value)) {
+            e.target.classList.add('border-danger');
+            return false;
+        }
 
-		return true;
-	}
+        if (password.value !== repeatPassword.value) {
+            repeatPassword.classList.add('border-danger');
+            return false;
+        }
+        return true;
+    }
 
-	onsubmit(e) {
-		e.preventDefault();
-		const controls = Array.from(this.controls);
-		controls.forEach(el => this.validate({ target: el }));
-		const valid = controls.every(el => !el.classList.contains('border-danger'));
-		const email = this.form.email.value;
-		const password = this.form.password.value;
-		if(valid) {
+    onsubmit(e) {
+        e.preventDefault();
 
+        const controls = Array.from(this.controls);
+        controls.forEach(el => this.validate({target: el}));
+        const valid = controls.every(el => !el.classList.contains('border-danger'));
+        const email = this.form.email.value;
+        const password = this.form.password.value;
+
+        if (valid) {
             const xhr = new XMLHttpRequest();
-            const body = JSON.stringify({ email, password });
+            const body = JSON.stringify({email, password});
 
             xhr.open('POST', `${BASE_URI}/user/register`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
             xhr.withCredentials = true;
-            xhr.onreadystatechange = function() {
-				location.hash = '#login'
-			};
+            xhr.onreadystatechange = function () {
+                location.hash = '#login'
+            };
             xhr.send(body);
         }
-	}
+    }
 }
 
 class HomePageHandler {
@@ -126,15 +124,15 @@ class HomePageHandler {
         xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
         xhr.withCredentials = true;
         xhr.onloadend = () => {
-        	const tasks = JSON.parse(xhr.responseText);
-        	this.showTaskList(tasks);
-		};
+            const tasks = JSON.parse(xhr.responseText);
+            this.showTaskList(tasks);
+        };
         xhr.send(body);
     }
 
     showTaskList(tasks) {
-		this.home.innerHTML = tasks.map((task) => {
-			return `
+        this.home.innerHTML = tasks.map((task) => {
+            return `
     		<div class="card mb-5 text-white bg-secondary">
 				<div class="card-header">
                		<h5 data-id=${task.id} class="card-title">${task.header}</h5>
@@ -149,41 +147,41 @@ class HomePageHandler {
                		</div>
             	</div>
     		</div>`
-    	}).join('');
-		this.init();
-	}
+        }).join('');
+        this.init();
+    }
 
-	deleteTask(e) {
-		if (e.target.dataset.target === 'delete') {
-			const id = e.target.dataset.id;
-			const xhr = new XMLHttpRequest();
+    deleteTask(e) {
+        if (e.target.dataset.target === 'delete') {
+            const id = e.target.dataset.id;
+            const xhr = new XMLHttpRequest();
 
-			xhr.open('GET', `${BASE_URI}/task/one/${id}`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-			xhr.withCredentials = true;
-			xhr.onloadend = function () {
-				location.hash = '#home'
-			};
-			xhr.send();
-		}
-	}
+            xhr.open('GET', `${BASE_URI}/task/one/${id}`);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.withCredentials = true;
+            xhr.onloadend = function () {
+                location.hash = '#home'
+            };
+            xhr.send();
+        }
+    }
 
-	editTask(e) {
-    	if (e.target.dataset.target === 'edit') {
-    		const id = e.target.dataset.id;
-    		const xhr = new XMLHttpRequest();
+    editTask(e) {
+        if (e.target.dataset.target === 'edit') {
+            const id = e.target.dataset.id;
+            const xhr = new XMLHttpRequest();
 
-    		xhr.open('GET', `${BASE_URI}/task/one/${id}`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-			xhr.withCredentials = true;
-			xhr.onloadend = function () {
-			    const task = JSON.parse(xhr.responseText);
-			    sessionStorage.setItem('edit', JSON.stringify(task));
-				location.hash = '#new_task';
-			};
-			xhr.send();
-		}
-	}
+            xhr.open('GET', `${BASE_URI}/task/one/${id}`);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.withCredentials = true;
+            xhr.onloadend = function () {
+                const task = JSON.parse(xhr.responseText);
+                sessionStorage.setItem('edit', JSON.stringify(task));
+                location.hash = '#new_task';
+            };
+            xhr.send();
+        }
+    }
 
     logout() {
         const xhr = new XMLHttpRequest();
@@ -199,32 +197,32 @@ class HomePageHandler {
 
     init() {
         document.querySelector('.logout').addEventListener('click', this.logout);
-        Array.from(this.controls).forEach( el => el.addEventListener('click', this.deleteTask.bind(this)));
-        Array.from(this.controls).forEach( el => el.addEventListener('click', this.editTask.bind(this)));
+        Array.from(this.controls).forEach(el => el.addEventListener('click', this.deleteTask.bind(this)));
+        Array.from(this.controls).forEach(el => el.addEventListener('click', this.editTask.bind(this)));
     }
 }
 
 class NewTaskFormHandler {
-	constructor(form) {
-		this.form = form;
-		this.form.addEventListener('submit', this.onsubmit.bind(this));
-		this.editTask();
+    constructor(form) {
+        this.form = form;
+        this.form.addEventListener('submit', this.onsubmit.bind(this));
+        this.editTask();
     }
 
     editTask() {
-	    const editingTask = JSON.parse(sessionStorage.getItem('edit'));
-	    if (editingTask) {
-	    	let date = editingTask.date
-	    	date = date.substring(1, 11)
-	        this.form.header.value = editingTask.header;
-	        this.form.details.value = editingTask.details;
-	        this.form.deadline.value = date;
+        const editingTask = JSON.parse(sessionStorage.getItem('edit'));
+        if (editingTask) {
+            let date = editingTask.date
+            date = date.substring(1, 11)
+            this.form.header.value = editingTask.header;
+            this.form.details.value = editingTask.details;
+            this.form.deadline.value = date;
         }
     }
 
     onsubmit(e) {
-		e.preventDefault();
-		const editingTask = JSON.parse(sessionStorage.getItem('edit'));
+        e.preventDefault();
+        const editingTask = JSON.parse(sessionStorage.getItem('edit'));
         const inputDate = this.form[2].value;
         const taskDate = new Date(inputDate);
         const task = {
@@ -235,26 +233,26 @@ class NewTaskFormHandler {
         };
         const xhr = new XMLHttpRequest();
         const body = JSON.stringify(task);
-		if (editingTask) {
-			xhr.open('PUT', `${BASE_URI}/task/${editingTask.id}`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-			xhr.withCredentials = true;
-			xhr.onreadystatechange = function() {
-				document.querySelector('nav.home-header .add').style.display = 'inline-block';
-				location.hash = '#home'
-			};
-			xhr.send(body);
-		} else {
-			xhr.open('POST', `${BASE_URI}/task/add`);
-			xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-			xhr.withCredentials = true;
-			xhr.onreadystatechange = function() {
-				document.querySelector('nav.home-header .add').style.display = 'inline-block';
-				location.hash = '#home'
-			};
-			xhr.send(body);
-		}
-	}
+        if (editingTask) {
+            xhr.open('PUT', `${BASE_URI}/task/${editingTask.id}`);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.withCredentials = true;
+            xhr.onreadystatechange = function () {
+                document.querySelector('nav.home-header .add').style.display = 'inline-block';
+                location.hash = '#home'
+            };
+            xhr.send(body);
+        } else {
+            xhr.open('POST', `${BASE_URI}/task/add`);
+            xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+            xhr.withCredentials = true;
+            xhr.onreadystatechange = function () {
+                document.querySelector('nav.home-header .add').style.display = 'inline-block';
+                location.hash = '#home'
+            };
+            xhr.send(body);
+        }
+    }
 }
 
 
